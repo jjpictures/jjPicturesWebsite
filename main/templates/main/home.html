@@ -1,0 +1,31 @@
+{% extends 'main/base.html' %}
+{% load static %}
+
+{% block title %}Home - JJ Pictures{% endblock %}
+
+{% block content %}
+<div id="loading-spinner">
+    <div class="spinner"></div>
+</div>
+
+<div class="video-background" style="display:none;">
+    <video autoplay muted loop id="bg-video">
+        <source src="{% static 'main/background.mp4' %}" type="video/mp4">
+        Your browser does not support HTML5 video.
+    </video>
+</div>
+<div class="content-overlay" style="display:none;">
+    <a href="{% url 'portfolio' %}" class="btn">View Work</a>
+</div>
+
+<script>
+    window.addEventListener('load', function () {
+        var video = document.getElementById('bg-video');
+        video.addEventListener('canplaythrough', function () {
+            document.getElementById('loading-spinner').style.display = 'none';
+            document.querySelector('.video-background').style.display = 'block';
+            document.querySelector('.content-overlay').style.display = 'block';
+        });
+    });
+</script>
+{% endblock %}
