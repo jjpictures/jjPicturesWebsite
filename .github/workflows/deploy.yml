@@ -16,7 +16,7 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v2
       with:
-        python-version: '3.9.6'  # Specify the Python version you need
+        python-version: '3.9.6'
 
     - name: Install dependencies
       run: |
@@ -25,7 +25,7 @@ jobs:
 
     - name: Run Django collectstatic
       env:
-        DJANGO_SETTINGS_MODULE: jjPictures.settings  # Replace with your settings module if different
+        DJANGO_SETTINGS_MODULE: jjPictures.settings  # This should match the path to your settings module
       run: |
         python manage.py collectstatic --noinput
 
