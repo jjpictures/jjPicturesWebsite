@@ -42,12 +42,22 @@ jobs:
     - name: Commit and push changes
       run: |
         set -e  # Exit immediately if a command exits with a non-zero status
+        echo "Initializing git repository..."
         git init
+        echo "Adding remote origin..."
+        if git remote get-url origin; then
+          git remote remove origin
+        fi
         git remote add origin https://github.com/${{ github.repository }}.git
+        echo "Fetching from remote origin..."
         git fetch origin
+        echo "Checking out gh-pages branch..."
         git checkout -b gh-pages || git checkout gh-pages
+        echo "Adding staticfiles..."
         git add staticfiles
+        echo "Committing changes..."
         git commit -m "Deploy static files to GitHub Pages"
+        echo "Pushing to gh-pages branch..."
         git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
