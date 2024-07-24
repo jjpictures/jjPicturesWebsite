@@ -11,10 +11,10 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v2
+      uses: actions/checkout@v3
 
     - name: Set up Python
-      uses: actions/setup-python@v2
+      uses: actions/setup-python@v4
       with:
         python-version: '3.9'
 
@@ -49,9 +49,12 @@ jobs:
 
     - name: Commit and push changes
       run: |
-        git init
+        set -e  # Exit immediately if a command exits with a non-zero status
+        if git remote get-url origin; then
+          git remote remove origin
+        fi
         git remote add origin https://github.com/${{ github.repository }}.git
-        git fetch
+        git fetch origin
         git checkout -b gh-pages || git checkout gh-pages
         git add staticfiles
         git commit -m "Deploy static files to GitHub Pages"
