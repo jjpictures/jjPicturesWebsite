@@ -1,4 +1,4 @@
-name: Basic Setup Verification
+name: Deploy Django Static Files to GitHub Pages
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - master
 
 jobs:
-  verify-setup:
+  build:
     runs-on: ubuntu-latest
 
     steps:
@@ -33,3 +33,23 @@ jobs:
       run: |
         ls -l staticfiles
         du -sh staticfiles
+
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+    - name: Commit and push changes
+      run: |
+        set -e  # Exit immediately if a command exits with a non-zero status
+        git init
+        git remote add origin https://github.com/${{ github.repository }}.git
+        git fetch origin
+        git checkout -b gh-pages || git checkout gh-pages
+        git add staticfiles
+        git commit -m "Deploy static files to GitHub Pages"
+        git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
