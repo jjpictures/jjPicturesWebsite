@@ -20,26 +20,26 @@ jobs:
 
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
+        python -m pip install --upgrade pip || { echo 'Failed to upgrade pip'; exit 1; }
+        pip install -r requirements.txt || { echo 'Failed to install dependencies'; exit 1; }
 
     - name: Run Django collectstatic
       env:
         DJANGO_SETTINGS_MODULE: jjPictures.settings
       run: |
-        python manage.py collectstatic --noinput
+        python manage.py collectstatic --noinput || { echo 'collectstatic failed'; exit 1; }
 
     - name: Verify static files
       run: |
         echo "Listing contents of staticfiles directory..."
-        ls -l staticfiles || echo "No staticfiles directory found"
+        ls -l staticfiles || { echo 'staticfiles directory not found'; exit 1; }
         echo "Showing disk usage of staticfiles directory..."
-        du -sh staticfiles || echo "No staticfiles directory found"
+        du -sh staticfiles || { echo 'Failed to show disk usage for staticfiles'; exit 1; }
 
     - name: Configure git
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git config --global user.name "github-actions[bot]" || { echo 'Failed to configure git user.name'; exit 1; }
+        git config --global user.email "github-actions[bot]@users.noreply.github.com" || { echo 'Failed to configure git user.email'; exit 1; }
 
     - name: Commit and push changes
       run: |
@@ -61,7 +61,7 @@ jobs:
           git checkout -b gh-pages || { echo "Failed to create new gh-pages branch"; exit 1; }
         fi
         echo "Adding staticfiles..."
-        git add staticfiles || { echo "Failed to add staticfiles"; exit 1; }
+        git add -f staticfiles || { echo "Failed to add staticfiles"; exit 1; }
         echo "Committing changes..."
         git commit -m "Deploy static files to GitHub Pages" || { echo "Failed to commit changes"; exit 1; }
         echo "Pushing to gh-pages branch..."
