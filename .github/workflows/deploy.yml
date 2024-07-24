@@ -31,7 +31,9 @@ jobs:
 
     - name: Verify static files
       run: |
+        echo "Listing contents of staticfiles directory..."
         ls -l staticfiles
+        echo "Showing disk usage of staticfiles directory..."
         du -sh staticfiles
 
     - name: Configure git
@@ -52,7 +54,12 @@ jobs:
         echo "Fetching from remote origin..."
         git fetch origin
         echo "Checking out gh-pages branch..."
-        git checkout -b gh-pages || git checkout gh-pages
+        if git checkout gh-pages; then
+          echo "Checked out existing gh-pages branch"
+        else
+          echo "Creating new gh-pages branch"
+          git checkout -b gh-pages
+        fi
         echo "Adding staticfiles..."
         git add staticfiles
         echo "Committing changes..."
