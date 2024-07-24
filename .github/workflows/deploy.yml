@@ -25,9 +25,13 @@ jobs:
 
     - name: Run Django collectstatic
       env:
-        DJANGO_SETTINGS_MODULE: jjPictures.settings  # This should match the path to your settings module
+        DJANGO_SETTINGS_MODULE: jjPictures.settings
       run: |
         python manage.py collectstatic --noinput
+
+    - name: Verify static files
+      run: |
+        ls -l staticfiles
 
     - name: Create .nojekyll file
       run: |
