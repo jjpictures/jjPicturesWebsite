@@ -63,3 +63,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
         GITHUB_REPOSITORY: ${{ github.repository }}
+
+    - name: Upload static files as artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: ./staticfiles
