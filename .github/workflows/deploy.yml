@@ -3,7 +3,7 @@ name: Deploy Django Static Files to GitHub Pages
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   build:
