@@ -32,9 +32,9 @@ jobs:
     - name: Verify static files
       run: |
         echo "Listing contents of staticfiles directory..."
-        ls -l staticfiles
+        ls -l staticfiles || echo "No staticfiles directory found"
         echo "Showing disk usage of staticfiles directory..."
-        du -sh staticfiles
+        du -sh staticfiles || echo "No staticfiles directory found"
 
     - name: Configure git
       run: |
@@ -45,27 +45,27 @@ jobs:
       run: |
         set -e  # Exit immediately if a command exits with a non-zero status
         echo "Initializing git repository..."
-        git init
+        git init || { echo "Failed to initialize git repository"; exit 1; }
         echo "Adding remote origin..."
         if git remote get-url origin; then
-          git remote remove origin
+          git remote remove origin || { echo "Failed to remove existing remote"; exit 1; }
         fi
-        git remote add origin https://github.com/${{ github.repository }}.git
+        git remote add origin https://github.com/${{ github.repository }}.git || { echo "Failed to add remote origin"; exit 1; }
         echo "Fetching from remote origin..."
-        git fetch origin
+        git fetch origin || { echo "Failed to fetch from remote origin"; exit 1; }
         echo "Checking out gh-pages branch..."
         if git checkout gh-pages; then
           echo "Checked out existing gh-pages branch"
         else
           echo "Creating new gh-pages branch"
-          git checkout -b gh-pages
+          git checkout -b gh-pages || { echo "Failed to create new gh-pages branch"; exit 1; }
         fi
         echo "Adding staticfiles..."
-        git add staticfiles
+        git add staticfiles || { echo "Failed to add staticfiles"; exit 1; }
         echo "Committing changes..."
-        git commit -m "Deploy static files to GitHub Pages"
+        git commit -m "Deploy static files to GitHub Pages" || { echo "Failed to commit changes"; exit 1; }
         echo "Pushing to gh-pages branch..."
-        git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages
+        git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages || { echo "Failed to push to gh-pages branch"; exit 1; }
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         GITHUB_ACTOR: ${{ github.actor }}
