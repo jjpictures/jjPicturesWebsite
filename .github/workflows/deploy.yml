@@ -63,9 +63,10 @@ jobs:
         echo "Verifying contents of staticfiles directory..."
         ls -l staticfiles || { echo 'staticfiles directory not found before adding to git'; exit 1; }
         echo "Adding staticfiles..."
-        git add staticfiles/* || { echo "Failed to add staticfiles"; exit 1; }
-        echo "Committing changes..."
+        git add -f staticfiles/* || { echo "Failed to add staticfiles"; exit 1; }
+        echo "Debugging git status after add..."
         git status
+        echo "Committing changes..."
         git commit -m "Deploy static files to GitHub Pages" || { echo "Failed to commit changes"; exit 1; }
         echo "Pushing to gh-pages branch..."
         git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages || { echo "Failed to push to gh-pages branch"; exit 1; }
