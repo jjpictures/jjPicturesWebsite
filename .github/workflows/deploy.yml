@@ -92,6 +92,13 @@ jobs:
         echo "Listing contents of staticfiles directory before upload..."
         ls -l staticfiles
 
+    - name: Remove db.sqlite3 from upload
+      run: |
+        echo "Removing db.sqlite3 from staticfiles directory..."
+        rm -f staticfiles/db.sqlite3 || true
+        echo "Contents of staticfiles directory after removing db.sqlite3..."
+        ls -l staticfiles
+
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
