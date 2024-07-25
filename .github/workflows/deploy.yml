@@ -60,6 +60,8 @@ jobs:
           echo "Creating new gh-pages branch"
           git checkout -b gh-pages || { echo "Failed to create new gh-pages branch"; exit 1; }
         fi
+        echo "Verifying contents of staticfiles directory..."
+        ls -l staticfiles || { echo 'staticfiles directory not found before adding to git'; exit 1; }
         echo "Adding staticfiles..."
         git add -f staticfiles || { echo "Failed to add staticfiles"; exit 1; }
         echo "Committing changes..."
