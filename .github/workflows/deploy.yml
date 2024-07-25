@@ -63,7 +63,9 @@ jobs:
         echo "Verifying contents of staticfiles directory..."
         ls -l staticfiles || { echo 'staticfiles directory not found before adding to git'; exit 1; }
         echo "Adding staticfiles..."
-        git add -f staticfiles/* || { echo "Failed to add staticfiles"; exit 1; }
+        git add staticfiles/* || { echo "Failed to add staticfiles"; exit 1; }
+        echo "Staging all changes..."
+        git add -A || { echo "Failed to stage changes"; exit 1; }
         echo "Debugging git status after add..."
         git status
         echo "Committing changes..."
