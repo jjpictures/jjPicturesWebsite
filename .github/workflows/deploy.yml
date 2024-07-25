@@ -36,6 +36,13 @@ jobs:
           echo "Showing disk usage of staticfiles directory..."
           du -sh staticfiles || { echo 'Failed to show disk usage for staticfiles'; exit 1; }
 
+      - name: Remove db.sqlite3 from staticfiles directory
+        run: |
+          echo "Removing db.sqlite3 from staticfiles directory..."
+          find staticfiles -name "db.sqlite3" -exec rm -f {} \;
+          echo "Contents of staticfiles directory after removing db.sqlite3..."
+          ls -l staticfiles
+
       - name: Configure git
         run: |
           git config --global user.name "github-actions[bot]" || { echo 'Failed to configure git user.name'; exit 1; }
@@ -77,18 +84,25 @@ jobs:
           GITHUB_ACTOR: ${{ github.actor }}
           GITHUB_REPOSITORY: ${{ github.repository }}
 
-      - name: Remove db.sqlite3 from staticfiles directory
+      - name: Verify existence of staticfiles before uploading
         run: |
-          echo "Removing db.sqlite3 from staticfiles directory..."
-          rm -f staticfiles/db.sqlite3 || true
-          echo "Contents of staticfiles directory after removing db.sqlite3..."
+          echo "Checking if staticfiles directory exists..."
+          if [ -d "staticfiles" ]; then
+            echo "staticfiles directory exists"
+          else
+            echo "staticfiles directory does not exist"
+            exit 1
+          fi
+
+      - name: List contents of staticfiles before uploading
+        run: |
+          echo "Listing contents of staticfiles directory before upload..."
           ls -l staticfiles
+          find staticfiles -type f
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v2
         with:
           name: staticfiles
-          path: |
-            staticfiles/**/*
-            !staticfiles/db.sqlite3
-          if-no-files-found: ignore  # Ensures that the step doesn't fail if no files are found
+          path: staticfiles
+          if-no-files-found: ignore
