@@ -10,95 +10,91 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.9'
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.9'
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip || { echo 'Failed to upgrade pip'; exit 1; }
-          pip install -r requirements.txt || { echo 'Failed to install dependencies'; exit 1; }
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip || { echo 'Failed to upgrade pip'; exit 1; }
+        pip install -r requirements.txt || { echo 'Failed to install dependencies'; exit 1; }
 
-      - name: Run Django collectstatic
-        env:
-          DJANGO_SETTINGS_MODULE: jjPictures.settings
-        run: |
-          python manage.py collectstatic --noinput || { echo 'collectstatic failed'; exit 1; }
+    - name: Run Django collectstatic
+      env:
+        DJANGO_SETTINGS_MODULE: jjPictures.settings
+      run: |
+        python manage.py collectstatic --noinput || { echo 'collectstatic failed'; exit 1; }
 
-      - name: Verify static files
-        run: |
-          echo "Listing contents of staticfiles directory..."
-          ls -l staticfiles || { echo 'staticfiles directory not found'; exit 1; }
-          echo "Showing disk usage of staticfiles directory..."
-          du -sh staticfiles || { echo 'Failed to show disk usage for staticfiles'; exit 1; }
+    - name: Verify static files
+      run: |
+        echo "Listing contents of staticfiles directory..."
+        ls -l staticfiles || { echo 'staticfiles directory not found'; exit 1; }
+        echo "Showing disk usage of staticfiles directory..."
+        du -sh staticfiles || { echo 'Failed to show disk usage for staticfiles'; exit 1; }
 
-      - name: Configure git
-        run: |
-          git config --global user.name "github-actions[bot]" || { echo 'Failed to configure git user.name'; exit 1; }
-          git config --global user.email "github-actions[bot]@users.noreply.github.com" || { echo 'Failed to configure git user.email'; exit 1; }
+    - name: Configure git
+      run: |
+        git config --global user.name "github-actions[bot]" || { echo 'Failed to configure git user.name'; exit 1; }
+        git config --global user.email "github-actions[bot]@users.noreply.github.com" || { echo 'Failed to configure git user.email'; exit 1; }
 
-      - name: Commit and push changes
-        run: |
-          set -e  # Exit immediately if a command exits with a non-zero status
-          echo "Initializing git repository..."
-          git init || { echo "Failed to initialize git repository"; exit 1; }
-          echo "Adding remote origin..."
-          if git remote get-url origin; then
-            git remote remove origin || { echo "Failed to remove existing remote"; exit 1; }
-          fi
-          git remote add origin https://github.com/${{ github.repository }}.git || { echo "Failed to add remote origin"; exit 1; }
-          echo "Fetching from remote origin..."
-          git fetch origin || { echo "Failed to fetch from remote origin"; exit 1; }
-          echo "Checking out gh-pages branch..."
-          if git checkout gh-pages; then
-            echo "Checked out existing gh-pages branch"
-          else
-            echo "Creating new gh-pages branch"
-            git checkout -b gh-pages || { echo "Failed to create new gh-pages branch"; exit 1; }
-          fi
-          echo "Verifying contents of staticfiles directory..."
-          ls -l staticfiles || { echo 'staticfiles directory not found before adding to git'; exit 1; }
-          echo "Adding staticfiles..."
-          git add staticfiles/* || { echo "Failed to add staticfiles"; exit 1; }
-          echo "Staging all changes..."
-          git add -A || { echo "Failed to stage changes"; exit 1; }
-          echo "Debugging git status after add..."
-          git status
-          echo "Committing changes..."
-          git commit -m "Deploy static files to GitHub Pages" || { echo "Failed to commit changes"; exit 1; }
-          echo "Pushing to gh-pages branch..."
-          git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages || { echo "Failed to push to gh-pages branch"; exit 1; }
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_ACTOR: ${{ github.actor }}
-          GITHUB_REPOSITORY: ${{ github.repository }}
+    - name: Commit and push changes
+      run: |
+        set -e  # Exit immediately if a command exits with a non-zero status
+        echo "Initializing git repository..."
+        git init || { echo "Failed to initialize git repository"; exit 1; }
+        echo "Adding remote origin..."
+        if git remote get-url origin; then
+          git remote remove origin || { echo "Failed to remove existing remote"; exit 1; }
+        fi
+        git remote add origin https://github.com/${{ github.repository }}.git || { echo "Failed to add remote origin"; exit 1; }
+        echo "Fetching from remote origin..."
+        git fetch origin || { echo "Failed to fetch from remote origin"; exit 1; }
+        echo "Checking out gh-pages branch..."
+        if git checkout gh-pages; then
+          echo "Checked out existing gh-pages branch"
+        else
+          echo "Creating new gh-pages branch"
+          git checkout -b gh-pages || { echo "Failed to create new gh-pages branch"; exit 1; }
+        fi
+        echo "Verifying contents of staticfiles directory..."
+        ls -l staticfiles || { echo 'staticfiles directory not found before adding to git'; exit 1; }
+        echo "Adding staticfiles..."
+        git add staticfiles/* || { echo "Failed to add staticfiles"; exit 1; }
+        echo "Staging all changes..."
+        git add -A || { echo "Failed to stage changes"; exit 1; }
+        echo "Debugging git status after add..."
+        git status
+        echo "Committing changes..."
+        git commit -m "Deploy static files to GitHub Pages" || { echo "Failed to commit changes"; exit 1; }
+        echo "Pushing to gh-pages branch..."
+        git push -f https://${{ github.actor }}:${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git gh-pages || { echo "Failed to push to gh-pages branch"; exit 1; }
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
 
-      - name: Verify existence of staticfiles before uploading
-        run: |
-          echo "Checking if staticfiles directory exists..."
-          if [ -d "staticfiles" ]; then
-            echo "staticfiles directory exists"
-          else
-            echo "staticfiles directory does not exist"
-            exit 1
-          fi
+    - name: Verify existence of staticfiles before uploading
+      run: |
+        echo "Checking if staticfiles directory exists..."
+        if [ -d "staticfiles" ]; then
+          echo "staticfiles directory exists"
+        else
+          echo "staticfiles directory does not exist"
+          exit 1
+        fi
 
-      - name: List contents of staticfiles before uploading
-        run: |
-          echo "Listing contents of staticfiles directory before upload..."
-          ls -l staticfiles
+    - name: List contents of staticfiles before uploading
+      run: |
+        echo "Listing contents of staticfiles directory before upload..."
+        ls -l staticfiles
 
-      - name: Upload artifacts
-        uses: actions/upload-artifact@v2
-        with:
-          name: staticfiles
-          path: staticfiles
-
-      - name: Debug upload artifact step
-        run: |
-          echo "Debugging upload artifact step..."
-          echo "Checking if any errors occurred"
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: staticfiles
+        path: staticfiles
+        if-no-files-found: ignore  # Ensures that the step doesn't fail if no files are found
